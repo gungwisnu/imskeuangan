@@ -1,59 +1,130 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🪙 Fintrac.AI — Asisten Keuangan Pintar & Modern
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Fintrac.AI adalah aplikasi pencatatan keuangan pribadi (Finance Tracker) modern berbasis web yang terintegrasi dengan kecerdasan buatan (**AI - DeepSeek v3**). Aplikasi ini dirancang menggunakan **Parker Style Reference** (Light theme, minimalis premium, dengan dominasi warna Electric Blue dan Ember Orange).
 
-## About Laravel
+Aplikasi ini mencakup fitur otentikasi pengguna, manajemen transaksi (pemasukan/pengeluaran) reaktif, dasbor analitik visual interaktif, pembuatan kategori dinamis secara otomatis oleh AI, serta fitur obrolan AI yang fungsional untuk menambah atau membatalkan transaksi.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Fitur Utama
+1. **Dashboard Analytics (Pure Visual):** Ringkasan keuangan (Saldo Total, Pemasukan, Pengeluaran), Grafik Tren Keuangan (Harian/Bulanan), dan Donut Chart pembagian Pengeluaran & Pemasukan per kategori.
+2. **Interactive Period Filtering:** Filter seluruh data dashboard & transaksi secara reaktif berdasarkan *Hari Ini*, *Minggu Ini*, *Bulan Ini*, *Tahun Ini*, atau *Semua Waktu*.
+3. **Transaction Management (CRUD):** Tambah transaksi manual lewat form slide-down (tanpa ganti halaman), hapus transaksi, dan dukung paginasi tabel.
+4. **Dynamic Categories:** Pembuatan kategori baru secara langsung (baik manual via modal popup, maupun otomatis saat AI mendeteksi kategori baru yang belum ada di database).
+5. **AI Chat Assistant (DeepSeek v3):** Chatbot asisten keuangan yang selalu siaga di pojok kanan atas untuk:
+   - Mencatat transaksi otomatis: *"Beli kopi aren 20rb"*
+   - Mencatat multi-transaksi sekaligus: *"Beli bensin 15rb dan nasi goreng 12rb"*
+   - Menghapus/membatalkan transaksi jika salah catat: *"gajadi beli kopi aren tadi, tolong hapus"*
+   - Auto-reload otomatis setelah mencatat/menghapus transaksi via AI.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🛠️ Tech Stack
+- **Backend:** Laravel 11
+- **Database:** MySQL (XAMPP / MariaDB)
+- **Frontend:** Blade Templates, TailwindCSS (CDN), Alpine.js
+- **Charts:** Chart.js
+- **Integrasi AI:** DeepSeek API
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## ⚙️ Persyaratan Sistem
+Sebelum memulai, pastikan perangkat Anda sudah terpasang:
+- PHP >= 8.2
+- Composer
+- XAMPP (untuk mengaktifkan Apache & MySQL)
+- Koneksi internet (untuk request AI ke DeepSeek API)
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 📥 Panduan Instalasi & Setup Kelompok
 
-### Premium Partners
+Ikuti langkah-langkah di bawah ini untuk menjalankan project di komputer masing-masing:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 1. Clone Repositori
+Clone project dari GitHub ke folder lokal Anda:
+```bash
+git clone https://github.com/gungwisnu/imskeuangan.git
+cd imskeuangan
+```
 
-## Contributing
+### 2. Install Dependensi PHP (Laravel)
+Jalankan perintah berikut untuk mengunduh semua library package yang dibutuhkan:
+```bash
+composer install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Konfigurasi Environment File (`.env`)
+Salin file `.env.example` menjadi `.env`:
+```bash
+cp .env.example .env
+```
+Buka file `.env` yang baru dibuat di VS Code/Text Editor lainnya, lalu sesuaikan bagian konfigurasi database dan API key seperti berikut:
 
-## Code of Conduct
+```ini
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=imskeuangan
+DB_USERNAME=root
+DB_PASSWORD=
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Integrasi DeepSeek API
+DEEPSEEK_API_KEY=sk-your-actual-api-key
+DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
 
-## Security Vulnerabilities
+# Pastikan session driver adalah database untuk tracking chat log & session
+SESSION_DRIVER=database
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 4. Generate Application Key
+Jalankan command berikut untuk membuat key enkripsi aplikasi Laravel:
+```bash
+php artisan key:generate
+```
 
-## License
+### 5. Siapkan Database
+1. Buka **XAMPP Control Panel**, lalu klik **Start** pada modul **Apache** dan **MySQL**.
+2. Buka browser dan pergi ke [http://localhost/phpmyadmin](http://localhost/phpmyadmin).
+3. Buat database baru bernama **`imskeuangan`**.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 6. Jalankan Migrasi & Database Seeder
+Jalankan migrasi tabel-tabel database sekaligus mengisi kategori dasar default:
+```bash
+php artisan migrate --seed
+```
+
+### 7. Jalankan Server Lokal
+Nyalakan server development Laravel:
+```bash
+php artisan serve
+```
+Buka browser Anda dan akses aplikasi di:
+👉 **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
+
+---
+
+## 🔑 Akun Uji Coba (Testing)
+Anda bisa mendaftar akun baru lewat tombol **Daftar** di pojok kanan atas, atau menggunakan akun demo bawaan berikut untuk langsung melihat visualisasi data:
+- **Email:** `demo@example.com`
+- **Password:** `password123`
+
+---
+
+## 💬 Cara Mencoba Fitur AI Chat
+Setelah berhasil masuk ke dashboard, klik tombol **Tanya AI** di bagian navigasi atas untuk membuka asisten keuangan. Anda bisa mencoba beberapa perintah berikut:
+
+1. **Mencatat Satu Transaksi:**
+   > *"Tadi pagi saya beli bensin motor sebesar 15.000"*
+2. **Mencatat Beberapa Transaksi Sekaligus:**
+   > *"Baru saja beli nasi goreng 15 ribu dan es teh manis 5 ribu"*
+3. **Mencatat dengan Kategori Baru (Auto-Create):**
+   > *"Kemarin bayar hutang ke temen 100 ribu"* (AI akan mendeteksi kategori baru bernama `Hutang` dan otomatis menambahkannya ke database).
+4. **Membatalkan / Menghapus Transaksi:**
+   > *"eh ternyata aku gajadi beli nasi goreng tadi, tolong diapus"* (AI akan menghapus transaksi nasi goreng terakhir Anda dari tabel secara otomatis).
+
+---
+
+## 👥 Kelompok Pengembangan
+- **Identitas Kelompok:** 053.089.098.106.150
+- **Repositori:** [gungwisnu/imskeuangan](https://github.com/gungwisnu/imskeuangan)
