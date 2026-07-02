@@ -37,7 +37,7 @@
                         'card': '24px',
                         'badge': '12.8px',
                         'input': '12.8px',
-                        'pill': '9999px',
+                        'pill': '12.8px',
                     },
                     boxShadow: {
                         'parker': 'rgba(0, 0, 0, 0.1) 0px 2px 10px 0px',
@@ -58,6 +58,38 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        function formatRupiah(value) {
+            if (!value) return '';
+            let clean = value.toString().replace(/[^0-9]/g, '');
+            if (!clean) return '';
+            return new Intl.NumberFormat('id-ID').format(parseInt(clean, 10));
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const links = document.querySelectorAll('a:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not([href*="logout"])');
+            links.forEach(link => {
+                if (link.hostname === window.location.hostname) {
+                    link.addEventListener('click', function(e) {
+                        const href = this.getAttribute('href');
+                        if (!href || href === '#') return;
+                        
+                        e.preventDefault();
+                        const main = document.querySelector('main');
+                        if (main) {
+                            main.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+                            main.style.opacity = '0';
+                            main.style.transform = 'translateY(-8px)';
+                        }
+                        setTimeout(() => {
+                            window.location.href = href;
+                        }, 200);
+                    });
+                }
+            });
+        });
+    </script>
 
     <style>
         /* ── Design System Tokens ─────────────────────────────────── */
@@ -98,7 +130,7 @@
         .btn-primary {
             display: inline-flex; align-items: center; gap: 8px;
             background: #5196fe; color: #fff;
-            border-radius: 9999px;
+            border-radius: 12.8px;
             padding: 12px 24px;
             font-size: 15px; font-weight: 500;
             border: none; cursor: pointer;
@@ -111,7 +143,7 @@
         .btn-ember {
             display: inline-flex; align-items: center; gap: 8px;
             background: #f9754e; color: #fff;
-            border-radius: 9999px;
+            border-radius: 12.8px;
             padding: 12px 24px;
             font-size: 15px; font-weight: 500;
             border: none; cursor: pointer;
@@ -123,7 +155,7 @@
         .btn-ghost {
             display: inline-flex; align-items: center; gap: 8px;
             background: transparent; color: #1b1d20;
-            border-radius: 9999px;
+            border-radius: 12.8px;
             padding: 10px 22px;
             font-size: 15px; font-weight: 500;
             border: 1.5px solid #1b1d20; cursor: pointer;
@@ -173,7 +205,7 @@
         /* ── Period Tabs ─────────────────────────────────────────── */
         .period-tab {
             padding: 6px 16px;
-            border-radius: 9999px;
+            border-radius: 12.8px;
             font-size: 13px; font-weight: 500;
             color: #6e6e6e;
             transition: all 0.15s;
@@ -181,6 +213,21 @@
         }
         .period-tab:hover    { color: #1b1d20; background: #f2f1ec; }
         .period-tab.active   { background: #5196fe; color: #fff; }
+
+        /* ── Page Transitions ────────────────────────────────────── */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-page-in {
+            animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
 
         /* ── Badge ───────────────────────────────────────────────── */
         .badge-income  { background: #e8f5e9; color: #2e7d32; border-radius: 12.8px; padding: 4px 10px; font-size: 12px; font-weight: 500; }
@@ -307,7 +354,7 @@
     @endif
 
     <!-- ── Page Content ────────────────────────────────────────────────── -->
-    <main class="flex-grow max-w-page mx-auto w-full px-6 lg:px-8 py-8">
+    <main class="flex-grow max-w-page mx-auto w-full px-6 lg:px-8 py-8 animate-page-in">
         @yield('content')
     </main>
 

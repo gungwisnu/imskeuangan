@@ -24,7 +24,7 @@
                     'steel':         '#6e6e6e',
                     'fog':           '#a3a3a3',
                 },
-                borderRadius: { card: '24px', pill: '9999px', input: '12.8px' },
+                borderRadius: { card: '24px', pill: '12.8px', input: '12.8px' },
             }}
         }
     </script>
@@ -40,7 +40,7 @@
         .input-field::placeholder { color: #a3a3a3; }
         .btn-primary {
             width: 100%; background: #5196fe; color: #fff; border: none;
-            border-radius: 9999px; padding: 13px 24px; font-size: 15px; font-weight: 500;
+            border-radius: 12.8px; padding: 13px 24px; font-size: 15px; font-weight: 500;
             cursor: pointer; transition: background 0.15s, transform 0.1s;
         }
         .btn-primary:hover  { background: #3d7fe8; }

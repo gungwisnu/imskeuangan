@@ -9,6 +9,17 @@
     catType:      'expense',
     categories:   {{ $categories->toJson() }},
 
+    // Category Custom Select
+    selectedCatId: '{{ old('category_id') }}',
+    get selectedCatText() {
+        let cat = this.categories.find(c => c.id == this.selectedCatId);
+        return cat ? cat.name : 'Pilih kategori...';
+    },
+    get selectedCatType() {
+        let cat = this.categories.find(c => c.id == this.selectedCatId);
+        return cat ? cat.type : '';
+    },
+
     async createCategory() {
         if (!this.catName.trim()) return;
         const res = await fetch('{{ route('categories.store') }}', {
@@ -20,8 +31,7 @@
         if (data.success) {
             this.categories.push({ id: data.category.id, name: data.category.name, type: data.category.type });
             this.$nextTick(() => {
-                const sel = document.getElementById('category_id');
-                if (sel) sel.value = data.category.id;
+                this.selectedCatId = data.category.id;
             });
             this.catName = '';
             this.showCatModal = false;
@@ -68,7 +78,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('transactions.store') }}">
+        <form method="POST" action="{{ route('transactions.store') }}" @submit="$refs.amountInput.value = $refs.amountInput.value.replace(/\./g, '')">
             @csrf
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
@@ -76,13 +86,38 @@
                 <div>
                     <label class="block text-xs font-medium text-steel mb-1.5">Kategori</label>
                     <div class="flex gap-2">
-                        <select name="category_id" id="category_id"
-                                class="input-field flex-1 text-sm" required>
-                            <option value="">Pilih kategori...</option>
-                            <template x-for="cat in categories" :key="cat.id">
-                                <option :value="cat.id" x-text="cat.name + ' (' + (cat.type === 'income' ? '↑' : '↓') + ')'"></option>
-                            </template>
-                        </select>
+                        <div class="relative flex-1" x-data="{ open: false }">
+                            <input type="hidden" name="category_id" :value="selectedCatId" id="category_id" required>
+                            <button type="button" @click="open = !open" 
+                                    class="input-field flex items-center justify-between w-full bg-white text-left text-sm">
+                                <span class="flex items-center gap-1.5">
+                                    <span x-text="selectedCatText" class="text-ink-black"></span>
+                                    <span x-show="selectedCatType === 'income'" class="text-electric-blue font-semibold">(↑)</span>
+                                    <span x-show="selectedCatType === 'expense'" class="text-ember-orange font-semibold">(↓)</span>
+                                </span>
+                                <i class="fa-solid fa-chevron-down text-[10px] text-fog transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
+                            </button>
+                            <div x-show="open" @click.outside="open = false"
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="opacity-0 scale-95"
+                                 x-transition:enter-end="opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="opacity-100 scale-100"
+                                 x-transition:leave-end="opacity-0 scale-95"
+                                 class="absolute z-50 mt-1 w-full bg-white border border-sand rounded-xl shadow-parker max-h-60 overflow-y-auto py-1"
+                                 style="display: none;">
+                                <div class="px-3 py-1.5 text-xs text-fog border-b border-sand">Pilih kategori...</div>
+                                <template x-for="cat in categories" :key="cat.id">
+                                    <button type="button" 
+                                            @click="selectedCatId = cat.id; open = false;"
+                                            class="w-full text-left px-3 py-2 text-sm hover:bg-parchment flex items-center justify-between transition-colors">
+                                        <span x-text="cat.name" class="text-ink-black"></span>
+                                        <span :class="cat.type === 'income' ? 'text-electric-blue font-bold' : 'text-ember-orange font-bold'"
+                                              x-text="cat.type === 'income' ? '↑' : '↓'"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
                         <button type="button" @click="showCatModal = true"
                                 class="btn-ghost text-xs py-2 px-3 whitespace-nowrap" title="Buat kategori baru">
                             <i class="fa-solid fa-plus"></i>
@@ -93,8 +128,10 @@
                 {{-- Amount --}}
                 <div>
                     <label class="block text-xs font-medium text-steel mb-1.5">Nominal (Rp)</label>
-                    <input type="number" name="amount" step="100" min="1"
-                           value="{{ old('amount') }}" placeholder="50000"
+                    <input type="text" name="amount" x-ref="amountInput"
+                           x-init="$el.value = formatRupiah($el.value)"
+                           @input="$el.value = formatRupiah($el.value)"
+                           value="{{ old('amount') }}" placeholder="50.000"
                            class="input-field text-sm" required>
                 </div>
 

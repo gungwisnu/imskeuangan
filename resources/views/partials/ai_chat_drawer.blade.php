@@ -145,7 +145,8 @@
             initChat() {
                 const savedMessages = sessionStorage.getItem('fintrac_chat_messages');
                 if (savedMessages) {
-                    this.messages = JSON.parse(savedMessages);
+                    this.messages = JSON.parse(savedMessages).filter(m => !m.text.includes('Memperbarui halaman'));
+                    this.saveMessages();
                 } else {
                     this.messages = [{ 
                         sender: 'ai', 
@@ -206,8 +207,16 @@
                         if (needsReload) {
                             sessionStorage.setItem('fintrac_chat_open', 'true');
                             this.messages.push({ sender: 'ai', text: '🔄 Memperbarui halaman...' });
-                            this.saveMessages();
                             this.scrollChat();
+
+                            // Fade out main content for smooth transition
+                            const main = document.querySelector('main');
+                            if (main) {
+                                main.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+                                main.style.opacity = '0';
+                                main.style.transform = 'translateY(-8px)';
+                            }
+
                             setTimeout(() => { window.location.reload(); }, 1200);
                         }
                     } else {
