@@ -19,7 +19,74 @@ class AiController extends Controller
 
         $userMessage  = $request->input('message');
         $categories   = Category::orderBy('type')->orderBy('name')->get();
-        $aiResult     = $this->aiService->chat($userMessage, $categories);
+
+        // Build user financial context
+        $user = Auth::user();
+        $thisMonthStart = now()->startOfMonth()->toDateString();
+        $thisMonthEnd = now()->endOfMonth()->toDateString();
+
+        // 1. All-time cumulative balance
+        $allTimeIncome = Transaction::where('user_id', $user->id)
+            ->whereHas('category', fn($q) => $q->where('type', 'income'))
+            ->sum('amount');
+        $allTimeExpense = Transaction::where('user_id', $user->id)
+            ->whereHas('category', fn($q) => $q->where('type', 'expense'))
+            ->sum('amount');
+        $allTimeBalance = $allTimeIncome - $allTimeExpense;
+
+        // 2. Active month summary
+        $incomeThisMonth = Transaction::where('user_id', $user->id)
+            ->whereBetween('transaction_date', [$thisMonthStart, $thisMonthEnd])
+            ->whereHas('category', fn($q) => $q->where('type', 'income'))
+            ->sum('amount');
+        $expenseThisMonth = Transaction::where('user_id', $user->id)
+            ->whereBetween('transaction_date', [$thisMonthStart, $thisMonthEnd])
+            ->whereHas('category', fn($q) => $q->where('type', 'expense'))
+            ->sum('amount');
+        $balanceThisMonth = $incomeThisMonth - $expenseThisMonth;
+
+        // 3. Spending by category for active month
+        $spendingByCategory = Transaction::where('user_id', $user->id)
+            ->whereBetween('transaction_date', [$thisMonthStart, $thisMonthEnd])
+            ->whereHas('category', fn($q) => $q->where('type', 'expense'))
+            ->join('categories', 'transactions.category_id', '=', 'categories.id')
+            ->selectRaw('categories.name as category_name, SUM(transactions.amount) as total_amount')
+            ->groupBy('categories.name')
+            ->orderByDesc('total_amount')
+            ->get()
+            ->mapWithKeys(fn($item) => [$item->category_name => (float)$item->total_amount])
+            ->toArray();
+
+        // 4. Recent transactions list (last 50)
+        $recentTransactions = Transaction::where('user_id', $user->id)
+            ->with('category')
+            ->orderBy('transaction_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(50)
+            ->get()
+            ->map(fn($t) => [
+                'date' => $t->transaction_date ? $t->transaction_date->format('Y-m-d') : null,
+                'type' => $t->category->type ?? 'expense',
+                'category' => $t->category->name ?? 'Unknown',
+                'amount' => (float)$t->amount,
+                'description' => $t->description,
+            ])
+            ->toArray();
+
+        $financialContext = [
+            'user_name' => $user->name,
+            'all_time_balance' => (float)$allTimeBalance,
+            'current_month_summary' => [
+                'month' => now()->format('F Y'),
+                'total_income' => (float)$incomeThisMonth,
+                'total_expense' => (float)$expenseThisMonth,
+                'net_savings' => (float)$balanceThisMonth,
+            ],
+            'spending_by_category_this_month' => $spendingByCategory,
+            'recent_transactions' => $recentTransactions,
+        ];
+
+        $aiResult     = $this->aiService->chat($userMessage, $categories, $financialContext);
 
         $action        = $aiResult['action']       ?? 'chat';
         $aiResponse    = $aiResult['response']     ?? 'Maaf, saya tidak mengerti maksud Anda.';
@@ -75,7 +142,7 @@ class AiController extends Controller
             }
 
             if (!empty($newCategories)) {
-                $aiResponse .= "\n\n✨ Kategori baru dibuat: **" . implode('**, **', $newCategories) . "**";
+                $aiResponse .= "\n\n✨ Kategori baru dibuat: " . implode(', ', $newCategories);
             }
             if (!empty($failedItems)) {
                 $aiResponse .= "\n\n⚠️ Gagal menyimpan: " . implode(', ', $failedItems);

@@ -16,7 +16,7 @@ class DeepSeekService
         $this->baseUrl = config('services.deepseek.url') ?: env('DEEPSEEK_BASE_URL', 'https://api.deepseek.com/v1');
     }
 
-    public function chat(string $userMessage, $categoriesList = []): array
+    public function chat(string $userMessage, $categoriesList = [], array $financialContext = []): array
     {
         $categoriesString = '';
         foreach ($categoriesList as $cat) {
@@ -25,8 +25,37 @@ class DeepSeekService
 
         $today = now()->format('Y-m-d');
 
+        $contextString = "Belum ada transaksi yang tercatat.";
+        if (!empty($financialContext)) {
+            $contextString = "Pengguna: {$financialContext['user_name']}\n";
+            $contextString .= "- Saldo Kumulatif Seluruh Waktu: Rp " . number_format($financialContext['all_time_balance'], 0, ',', '.') . "\n";
+            $contextString .= "- Bulan Aktif: {$financialContext['current_month_summary']['month']}\n";
+            $contextString .= "  * Total Pemasukan Bulan Ini: Rp " . number_format($financialContext['current_month_summary']['total_income'], 0, ',', '.') . "\n";
+            $contextString .= "  * Total Pengeluaran Bulan Ini: Rp " . number_format($financialContext['current_month_summary']['total_expense'], 0, ',', '.') . "\n";
+            $contextString .= "  * Tabungan Bersih Bulan Ini: Rp " . number_format($financialContext['current_month_summary']['net_savings'], 0, ',', '.') . "\n";
+            
+            if (!empty($financialContext['spending_by_category_this_month'])) {
+                $contextString .= "- Pengeluaran per Kategori Bulan Ini:\n";
+                foreach ($financialContext['spending_by_category_this_month'] as $catName => $amount) {
+                    $contextString .= "  * {$catName}: Rp " . number_format($amount, 0, ',', '.') . "\n";
+                }
+            }
+            
+            if (!empty($financialContext['recent_transactions'])) {
+                $contextString .= "- Daftar Transaksi Terakhir (Maksimal 50):\n";
+                foreach ($financialContext['recent_transactions'] as $t) {
+                    $desc = $t['description'] ? " ({$t['description']})" : "";
+                    $typeSymbol = $t['type'] === 'income' ? '(+)' : '(-)';
+                    $contextString .= "  * {$t['date']} {$typeSymbol} {$t['category']}: Rp " . number_format($t['amount'], 0, ',', '.') . "{$desc}\n";
+                }
+            }
+        }
+
         $systemPrompt = <<<PROMPT
-Anda adalah asisten keuangan pribadi bernama Fintrac.AI. Tugas Anda: mencatat transaksi keuangan pengguna dan memberikan saran finansial yang bijak.
+Anda adalah asisten keuangan pribadi bernama Fintrac.AI. Tugas Anda: mencatat transaksi keuangan pengguna, menganalisis data keuangan mereka, dan memberikan saran finansial yang bijak dan proaktif layaknya seorang analis keuangan profesional (Finance Analyst).
+
+=== DATA KEUANGAN PENGGUNA ===
+{$contextString}
 
 === KATEGORI YANG TERSEDIA ===
 {$categoriesString}
@@ -88,14 +117,18 @@ OPSI B — Pengguna meminta HAPUS transaksi yang sudah dicatat sebelumnya:
   "response": "Pesan konfirmasi bahwa transaksi sedang dihapus."
 }
 
-OPSI C — Pertanyaan, saran, sapaan, atau tidak ada transaksi:
+OPSI C — Pertanyaan, saran, sapaan, analisis keuangan, atau tidak ada transaksi baru:
 {
   "action": "chat",
   "transactions": [],
-  "response": "Saran atau jawaban informatif dan bersahabat."
+  "response": "Jawaban analisis keuangan yang cerdas, personal, bersahabat, dan bermanfaat berdasarkan DATA KEUANGAN PENGGUNA di atas."
 }
 
 === ATURAN TAMBAHAN ===
+- ANALIS KEUANGAN PROAKTIF: Ketika pengguna menanyakan tentang kondisi keuangan mereka, pengeluaran, sisa saldo, rincian pengeluaran per kategori, atau meminta analisis pola belanja/saran keuangan, gunakan data dari "=== DATA KEUANGAN PENGGUNA ===" secara langsung. JANGAN PERNAH meminta pengguna mengetik ulang atau mengirim data transaksi mereka karena datanya sudah tersaji!
+- Sebutkan angka-angka nominal spesifik (misal: "Pengeluaran Anda bulan ini sudah mencapai Rp 1.500.000"), tanggal, atau kategori belanja riil dari data mereka untuk memberikan analisis yang akurat dan kredibel.
+- Berikan saran penghematan konkret jika pengeluaran mereka dirasa tidak seimbang dengan pemasukan.
+- JANGAN gunakan format markdown seperti asteriks ganda (**) untuk menebalkan teks, tanda pagar (#) untuk header, atau simbol format lainnya. Gunakan teks biasa (plain text) yang bersih.
 - Jika pengguna menyebut BEBERAPA item, PISAHKAN menjadi objek berbeda di array "transactions".
 - Nilai "category" harus konsisten: jika is_new_category=false gunakan nama PERSIS dari daftar. Jika true, buat nama kategori singkat dan deskriptif (maks 30 karakter).
 - Jika pengguna berkata "hapus", "batalkan", "cancel", "jadi nggak jadi", "gajadi beli", "salah catat" dll → gunakan action "delete_transaction" dan isi delete_target dengan info transaksi yang perlu dihapus.
