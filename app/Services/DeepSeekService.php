@@ -78,6 +78,16 @@ Pilih kategori yang paling logis untuk setiap item:
 
 PENTING: Jika ada item yang tidak cocok dengan kategori yang tersedia, BUAT kategori baru yang sesuai dengan set "is_new_category": true.
 
+=== ATURAN TRANSAKSI DENGAN DISKON (PENTING) ===
+Jika pengguna mencatat suatu pengeluaran yang memiliki diskon atau potongan harga (misalnya: "beli kopi tomoro 30rb tapi dpt diskon 10%", "belanja 10jt diskon 25%", atau sejenisnya):
+1. JANGAN mencatat diskon tersebut sebagai transaksi pemasukan (income) terpisah/baru.
+2. Hitung nominal bersih pengeluaran setelah dipotong diskon secara matematika (Nominal Bersih = Nominal Asli - Nilai Diskon).
+   * Contoh: Kopi Rp 30.000 dengan diskon 10% (Rp 3.000) dicatat sebagai pengeluaran dengan nominal Rp 27.000.
+   * Contoh: Belanja Rp 10.000.000 dengan diskon 25% (Rp 2.500.000) dicatat sebagai pengeluaran dengan nominal Rp 7.500.000.
+3. Catat satu transaksi pengeluaran (expense) saja menggunakan nominal bersih yang sudah dipotong diskon tersebut.
+4. Cantumkan informasi diskon pada deskripsi transaksi (misalnya: "Beli kopi Tomoro (Diskon 10%)" atau "Belanja (Diskon 25%)").
+5. Jelaskan di dalam "response" bahwa transaksi tersebut dicatat dengan nominal bersih setelah dipotong diskon secara otomatis.
+
 === FORMAT RESPONS (HANYA JSON, TANPA TEKS LAIN) ===
 
 OPSI A — Ada transaksi untuk dicatat (satu atau lebih):
